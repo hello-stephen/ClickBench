@@ -3,14 +3,14 @@
 # This benchmark should run on Amazon Linux
 
 # Install
+ROOT=$(dirname "$0")
 url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/master-942b31038-release-20220917020007.tar.gz'
 file_name="$(basename ${url})"
 if [[ ! -f $file_name ]]; then wget --continue ${url}; fi
 dir_name="$(basename ${url} | cut -d'.' -f1)"
 if [[ -d $dir_name ]]; then rm -rf "$dir_name"; else mkdir "$dir_name"; fi
 tar zxvf "$file_name" -C "$dir_name"
-cd "$dir_name/output" || exit
-DORIS_HOME=$(pwd)
+DORIS_HOME="$ROOT/$dir_name/output/"
 export DORIS_HOME
 
 # Install dependencies
@@ -25,7 +25,7 @@ export PATH=$JAVA_HOME/bin:$PATH
 IPADDR=$(hostname -i)
 
 # Start Frontend
-fe/bin/start_fe.sh --daemon
+"$DORIS_HOME"/fe/bin/start_fe.sh --daemon
 
 # Start Backend
 # This if you want to obtain the "tuned" result:
@@ -34,10 +34,10 @@ doris_scanner_thread_pool_thread_num=16
 tc_enable_aggressive_memory_decommit=true
 enable_new_scan_node=false
 mem_limit=100%
-" >be/conf/be_custom.conf
+" >"$DORIS_HOME"/be/conf/be_custom.conf
 
 sudo sysctl -w vm.max_map_count=2000000
-be/bin/start_be.sh --daemon
+"$DORIS_HOME"/be/bin/start_be.sh --daemon
 
 # wait for Doris ready
 while true; do
@@ -64,7 +64,7 @@ done
 
 # Setup cluster
 mysql -h 127.0.0.1 -P9030 -uroot -e "CREATE DATABASE hits"
-mysql -h 127.0.0.1 -P9030 -uroot hits <create.sql
+mysql -h 127.0.0.1 -P9030 -uroot hits <"$ROOT"/create.sql
 
 # This if you want to obtain the "tuned" result:
 opt_session_variables="
@@ -103,7 +103,7 @@ echo "Load data costs $LOADTIME seconds"
 #time mysql -h 127.0.0.1 -P9030 -uroot hits -e "ANALYZE TABLE hits"
 
 # Dataset contains 23676271984 bytes and 99997497 rows
-du -bcs be/storage/
+du -bcs "$DORIS_HOME"/be/storage/
 mysql -h 127.0.0.1 -P9030 -uroot hits -e "SELECT count(*) FROM hits"
 
 # Run queries
