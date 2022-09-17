@@ -79,11 +79,11 @@ for session_variable in ${opt_session_variables}; do
 done
 mysql -h 127.0.0.1 -P9030 -uroot -e 'show variables' | grep 'exec_mem_limit\|parallel_fragment_exec_instance_num\|enable_single_distinct_column_opt\|enable_function_pushdown\|enable_local_exchange'
 
-# # Load data
-# wget --continue 'https://datasets.clickhouse.com/hits_compatible/hits.tsv.gz'
-# gzip -d hits.tsv.gz
-# # Split file into chunks
-# split -a 1 -d -l 10000000 hits.tsv hits_split
+# Load data
+wget --continue 'https://datasets.clickhouse.com/hits_compatible/hits.tsv.gz'
+gzip -d hits.tsv.gz
+# Split file into chunks
+split -a 1 -d -l 10000000 hits.tsv hits_split
 
 START=$(date +%s)
 for i in $(seq -w 0 9); do
