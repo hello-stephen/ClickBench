@@ -49,6 +49,7 @@ while true; do
     fi
     sleep 2
 done
+mysql -h 127.0.0.1 -P9030 -uroot -e "ALTER SYSTEM ADD BACKEND '${IPADDR}:9050' "
 while true; do
     be_version=$(mysql -h127.0.0.1 -P9030 -uroot -e 'show backends' | cut -f22 | sed -n '2,$p')
     if [[ -n "${be_version}" ]]; then
@@ -61,7 +62,6 @@ while true; do
 done
 
 # Setup cluster
-mysql -h 127.0.0.1 -P9030 -uroot -e "ALTER SYSTEM ADD BACKEND '${IPADDR}:9050' "
 mysql -h 127.0.0.1 -P9030 -uroot -e "CREATE DATABASE hits"
 mysql -h 127.0.0.1 -P9030 -uroot hits <create.sql
 
