@@ -66,6 +66,7 @@ done
 
 # Setup cluster
 mysql -h 127.0.0.1 -P9030 -uroot -e "CREATE DATABASE hits"
+sleep 2
 mysql -h 127.0.0.1 -P9030 -uroot hits <"$ROOT"/create.sql
 
 # This if you want to obtain the "tuned" result:
