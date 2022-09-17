@@ -3,7 +3,7 @@
 # This benchmark should run on Amazon Linux
 
 # Install
-ROOT=$(dirname "$0")
+ROOT=$(pwd)
 url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/master-942b31038-release-20220917020007.tar.gz'
 file_name="$(basename ${url})"
 if [[ ! -f $file_name ]]; then wget --continue ${url}; fi
@@ -34,6 +34,7 @@ doris_scanner_thread_pool_thread_num=16
 tc_enable_aggressive_memory_decommit=true
 enable_new_scan_node=false
 mem_limit=100%
+priority_networks = ${IPADDR}/24
 " >"$DORIS_HOME"/be/conf/be_custom.conf
 
 sudo sysctl -w vm.max_map_count=2000000
