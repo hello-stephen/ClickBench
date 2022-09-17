@@ -4,10 +4,11 @@
 
 # Install
 url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/master-942b31038-release-20220917020007.tar.gz'
-wget --continue ${url}
+file_name="$(basename ${url})"
+if [[ ! -f $file_name ]]; then wget --continue ${url}; fi
 dir_name="$(basename ${url} | cut -d'.' -f1)"
 if [[ -d $dir_name ]]; then rm -rf "$dir_name"; else mkdir "$dir_name"; fi
-tar zxvf "$(basename ${url})" -C "$dir_name"
+tar zxvf "$file_name" -C "$dir_name"
 cd "$dir_name/output" || exit
 DORIS_HOME=$(pwd)
 export DORIS_HOME
