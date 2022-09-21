@@ -4,10 +4,14 @@
 
 # Install
 ROOT=$(pwd)
-url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/master-942b31038-release-20220917020007.tar.gz'
+url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/master-e1d2f82d8-release-20220920081217.tar.gz'
+# url="$1"
 file_name="$(basename ${url})"
 if [[ ! -f $file_name ]]; then wget --continue ${url}; fi
 dir_name="$(basename ${url} | cut -d'.' -f1)"
+set +e
+"$dir_name"/output/fe/bin/stop_fe.sh ; "$dir_name"/output/be/bin/stop_be.sh ; rm -rf "$dir_name"
+set -e
 if [[ -d $dir_name ]]; then rm -rf "$dir_name";fi
 mkdir "$dir_name"
 tar zxvf "$file_name" -C "$dir_name"
@@ -57,6 +61,7 @@ while true; do
     be_version=$(mysql -h127.0.0.1 -P9030 -uroot -e 'show backends' | cut -f22 | sed -n '2,$p')
     if [[ -n "${be_version}" ]]; then
         echo "be version: ${be_version}"
+        curl '127.0.0.1:8040/varz' | grep 'doris_scanner_thread_pool_thread_num\|tc_enable_aggressive_memory_decommit\|enable_new_scan_node\|mem_limit'
         break
     else
         echo 'wait for Doris be started.'
@@ -66,7 +71,7 @@ done
 
 # Setup cluster
 mysql -h 127.0.0.1 -P9030 -uroot -e "CREATE DATABASE hits"
-sleep 2
+sleep 10
 mysql -h 127.0.0.1 -P9030 -uroot hits <"$ROOT"/create.sql
 
 # This if you want to obtain the "tuned" result:
@@ -80,7 +85,7 @@ enable_local_exchange=true;
 for session_variable in ${opt_session_variables}; do
     mysql -h 127.0.0.1 -P9030 -uroot -e "SET GLOBAL ${session_variable}"
 done
-mysql -h 127.0.0.1 -P9030 -uroot -e 'show variables' | grep 'exec_mem_limit\|parallel_fragment_exec_instance_num\|enable_single_distinct_column_opt\|enable_function_pushdown\|enable_local_exchange'
+mysql -h 127.0.0.1 -P9030 -uroot -e 'show variables' | grep 'exec_mem_limit\|parallel_fragment_exec_instance_num\|enable_single_distinct_column_opt\|enable_function_pushdown\|enable_local_exchange\|load_mem_limit'
 
 # Load data
 wget --continue 'https://datasets.clickhouse.com/hits_compatible/hits.tsv.gz'
@@ -101,6 +106,7 @@ done
 END=$(date +%s)
 LOADTIME=$(echo "$END - $START" | bc)
 echo "Load data costs $LOADTIME seconds"
+date
 
 # This if you want to obtain the "tuned" result. Analyze table:
 #time mysql -h 127.0.0.1 -P9030 -uroot hits -e "ANALYZE TABLE hits"
@@ -112,7 +118,10 @@ mysql -h 127.0.0.1 -P9030 -uroot hits -e "SELECT count(*) FROM hits"
 # Run queries
 ./run.sh 2>&1 | tee run.log
 
-sed -r -e 's/query[0-9]+,/[/; s/$/],/' run.log
+# sed -r -e 's/query[0-9]+,/[/; s/$/],/' run.log
 
-echo 'best hot run:'
-cat result.csv | awk -F',' '{if($3 < $4) {print $3} else {print $4}}'
+
+#set +e
+#"$dir_name"/output/fe/bin/stop_fe.sh ; "$dir_name"/output/be/bin/stop_be.sh ; rm -rf "$dir_name"
+#set -e
+
