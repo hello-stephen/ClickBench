@@ -4,8 +4,8 @@
 
 # Install
 ROOT=$(pwd)
-url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/master-e1d2f82d8-release-20220920081217.tar.gz'
-# url="$1"
+# url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/master-942b31038-release-20220917020007.tar.gz'
+url="$1"
 file_name="$(basename ${url})"
 if [[ ! -f $file_name ]]; then wget --continue ${url}; fi
 dir_name="$(basename ${url} | cut -d'.' -f1)"
@@ -39,6 +39,7 @@ doris_scanner_thread_pool_thread_num=16
 tc_enable_aggressive_memory_decommit=true
 enable_new_scan_node=false
 mem_limit=100%
+# disable_auto_compaction=true
 priority_networks = ${IPADDR}/24
 " >"$DORIS_HOME"/be/conf/be_custom.conf
 
@@ -61,7 +62,7 @@ while true; do
     be_version=$(mysql -h127.0.0.1 -P9030 -uroot -e 'show backends' | cut -f22 | sed -n '2,$p')
     if [[ -n "${be_version}" ]]; then
         echo "be version: ${be_version}"
-        curl '127.0.0.1:8040/varz' | grep 'doris_scanner_thread_pool_thread_num\|tc_enable_aggressive_memory_decommit\|enable_new_scan_node\|mem_limit'
+        curl '127.0.0.1:8040/varz' | grep 'doris_scanner_thread_pool_thread_num\|tc_enable_aggressive_memory_decommit\|enable_new_scan_node\|mem_limit\|disable_auto_compaction'
         break
     else
         echo 'wait for Doris be started.'
@@ -87,11 +88,11 @@ for session_variable in ${opt_session_variables}; do
 done
 mysql -h 127.0.0.1 -P9030 -uroot -e 'show variables' | grep 'exec_mem_limit\|parallel_fragment_exec_instance_num\|enable_single_distinct_column_opt\|enable_function_pushdown\|enable_local_exchange\|load_mem_limit'
 
-# Load data
-wget --continue 'https://datasets.clickhouse.com/hits_compatible/hits.tsv.gz'
-gzip -d hits.tsv.gz
-# Split file into chunks
-split -a 1 -d -l 10000000 hits.tsv hits_split
+# # Load data
+# wget --continue 'https://datasets.clickhouse.com/hits_compatible/hits.tsv.gz'
+# gzip -d hits.tsv.gz
+# # Split file into chunks
+# split -a 1 -d -l 10000000 hits.tsv hits_split
 
 START=$(date +%s)
 for i in $(seq -w 0 9); do
@@ -116,12 +117,14 @@ du -bcs "$DORIS_HOME"/be/storage/
 mysql -h 127.0.0.1 -P9030 -uroot hits -e "SELECT count(*) FROM hits"
 
 # Run queries
-./run.sh 2>&1 | tee run.log
+echo "$dir_name" | tee run.log
+./run.sh 2>&1 | tee -a run.log
 
 # sed -r -e 's/query[0-9]+,/[/; s/$/],/' run.log
 
 
-#set +e
-#"$dir_name"/output/fe/bin/stop_fe.sh ; "$dir_name"/output/be/bin/stop_be.sh ; rm -rf "$dir_name"
-#set -e
+set +e
+"$dir_name"/output/fe/bin/stop_fe.sh ; "$dir_name"/output/be/bin/stop_be.sh
+# rm -rf "$dir_name"
+set -e
 
