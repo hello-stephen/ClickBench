@@ -54,7 +54,7 @@ tc_enable_aggressive_memory_decommit=false
 enable_new_scan_node=false
 mem_limit=95%
 write_buffer_size=1009715200
-# disable_auto_compaction=true
+disable_auto_compaction=true
 priority_networks = ${IPADDR}/24
 " >"$DORIS_HOME"/be/conf/be_custom.conf
 
