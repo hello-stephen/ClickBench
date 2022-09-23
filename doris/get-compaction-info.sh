@@ -14,6 +14,16 @@ for i in $(mysql -h127.1 -P9030 -uroot -Dhits -e'show tablets from hits;' | sed 
     # curl "$i" 2>/dev/null 
 done
 
+set +e
+echo -e "\n\n\n\n
+#############################
+all segments
+ll -h \$DORIS_HOME/be/storage/data/*/*/*
+#############################
+"
+ll -h "$DORIS_HOME/be/storage/data/*/*/*"
+set -e
+
 echo -e "\n\n\n\n
 #############################
 all tablets
