@@ -9,19 +9,19 @@ all rowsets, brief
 for i in \$(mysql -h127.1 -P9030 -uroot -Dhits -e'show tablets from hits;' | sed -n '2,$p' | awk '{print $NF}');do curl "$i" 2>/dev/null | grep '\"\['; done
 #############################
 "
-for i in $(mysql -h127.1 -P9030 -uroot -Dhits -e'show tablets from hits;' | sed -n '2,$p' | awk '{print $NF}');do 
+for i in $(mysql -h127.1 -P9030 -uroot -Dhits -e'show tablets from hits;' | sed -n '2,$p' | awk '{print $NF}'); do
     curl "$i" 2>/dev/null | grep '\"\['
-    # curl "$i" 2>/dev/null 
+    # curl "$i" 2>/dev/null
 done
 
 set +e
 echo -e "\n\n\n\n
 #############################
 all segments
-ll -h \$DORIS_HOME/be/storage/data/*/*/*
+ls -alh $(cat doris_home)/be/storage/data/*/*/*
 #############################
 "
-ll -h "$DORIS_HOME/be/storage/data/*/*/*"
+ls -alh "$(cat doris_home)/be/storage/data/*/*/*"
 set -e
 
 echo -e "\n\n\n\n
@@ -38,7 +38,7 @@ all CompactionStatus
 for i in \$(mysql -h127.1 -P9030 -uroot -Dhits -e'show tablets from hits;' | sed -n '2,$p' | awk '{print $NF}');do curl $i 2>/dev/null; done
 #############################
 "
-for i in $(mysql -h127.1 -P9030 -uroot -Dhits -e'show tablets from hits;' | sed -n '2,$p' | awk '{print $NF}');do 
+for i in $(mysql -h127.1 -P9030 -uroot -Dhits -e'show tablets from hits;' | sed -n '2,$p' | awk '{print $NF}'); do
     # curl "$i" 2>/dev/null | grep '\"\['
-    curl "$i" 2>/dev/null 
+    curl "$i" 2>/dev/null
 done

@@ -33,6 +33,7 @@ mkdir "$dir_name"
 tar zxvf "$file_name" -C "$dir_name"
 DORIS_HOME="$ROOT/$dir_name/output/"
 export DORIS_HOME
+echo "$DORIS_HOME" >doris_home
 
 # Install dependencies
 sudo yum install -y mysql java-11-amazon-corretto.x86_64
@@ -105,7 +106,6 @@ mysql -h 127.0.0.1 -P9030 -uroot -e "CREATE DATABASE hits"
 sleep 10
 mysql -h 127.0.0.1 -P9030 -uroot hits <"$ROOT"/create.sql
 
-
 for session_variable in ${opt_session_variables}; do
     mysql -h 127.0.0.1 -P9030 -uroot -e "SET GLOBAL ${session_variable}"
 done
@@ -132,6 +132,8 @@ done
 END=$(date +%s)
 LOADTIME=$(echo "$END - $START" | bc)
 echo "Load data costs $LOADTIME seconds"
+export LOADTIME
+echo "LOADTIME" >loadtime
 date
 
 # This if you want to obtain the "tuned" result. Analyze table:
