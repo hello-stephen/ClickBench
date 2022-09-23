@@ -4,41 +4,51 @@
 
 # Install
 ROOT=$(pwd)
-# url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/master-942b31038-release-20220917020007.tar.gz'
-url="$1"
+
+if [[ -n "$1" ]]; then
+    url="$1"
+else
+    url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-3d2a73c02-release-20220922221410.tar.gz'
+fi
+echo "Source bin from $url"
+
 file_name="$(basename ${url})"
-if [[ ! -f $file_name ]]; then wget --continue ${url}; fi
+if [[ "$url" == "http"* ]]; then
+    if [[ ! -f $file_name ]]; then
+        wget --continue ${url}
+    else
+        echo "$file_name already exists."
+    fi
+fi
 dir_name="$(basename ${url} | cut -d'.' -f1)"
+
 set +e
-"$dir_name"/output/fe/bin/stop_fe.sh ; "$dir_name"/output/be/bin/stop_be.sh ; rm -rf "$dir_name"
+"$dir_name"/output/fe/bin/stop_fe.sh
+"$dir_name"/output/be/bin/stop_be.sh
+rm -rf "$dir_name"
 set -e
-if [[ -d $dir_name ]]; then rm -rf "$dir_name";fi
+
 mkdir "$dir_name"
 tar zxvf "$file_name" -C "$dir_name"
 DORIS_HOME="$ROOT/$dir_name/output/"
 export DORIS_HOME
 
 # Install dependencies
-# sudo yum install -y java-1.8.0-openjdk-devel.x86_64 mysql
-# export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk/
-# export PATH=$JAVA_HOME/bin:$PATH
 sudo yum install -y mysql java-11-openjdk.x86_64
 export JAVA_HOME="/usr/lib/jvm/java-11-openjdk/"
 export PATH=$JAVA_HOME/bin:$PATH
-
-# Create directory for FE and BE
-IPADDR=$(hostname -i)
 
 # Start Frontend
 "$DORIS_HOME"/fe/bin/start_fe.sh --daemon
 
 # Start Backend
+IPADDR=$(hostname -i)
 # This if you want to obtain the "tuned" result:
 echo "
-doris_scanner_thread_pool_thread_num=16
-tc_enable_aggressive_memory_decommit=true
+doris_scanner_thread_pool_thread_num=8
+tc_enable_aggressive_memory_decommit=false
 enable_new_scan_node=false
-mem_limit=100%
+mem_limit=95%
 # disable_auto_compaction=true
 priority_networks = ${IPADDR}/24
 " >"$DORIS_HOME"/be/conf/be_custom.conf
@@ -88,12 +98,14 @@ for session_variable in ${opt_session_variables}; do
 done
 mysql -h 127.0.0.1 -P9030 -uroot -e 'show variables' | grep 'exec_mem_limit\|parallel_fragment_exec_instance_num\|enable_single_distinct_column_opt\|enable_function_pushdown\|enable_local_exchange\|load_mem_limit'
 
-# # Load data
+# Load data
+
 # wget --continue 'https://datasets.clickhouse.com/hits_compatible/hits.tsv.gz'
 # gzip -d hits.tsv.gz
 # # Split file into chunks
 # split -a 1 -d -l 10000000 hits.tsv hits_split
 
+date
 START=$(date +%s)
 for i in $(seq -w 0 9); do
     echo "start loading hits_split${i} ..."
@@ -115,16 +127,17 @@ date
 # Dataset contains 23676271984 bytes and 99997497 rows
 du -bcs "$DORIS_HOME"/be/storage/
 mysql -h 127.0.0.1 -P9030 -uroot hits -e "SELECT count(*) FROM hits"
+date
 
 # Run queries
 echo "$dir_name" | tee run.log
-./run.sh 2>&1 | tee -a run.log
+# ./run.sh 2>&1 | tee -a run.log
+date
 
 # sed -r -e 's/query[0-9]+,/[/; s/$/],/' run.log
 
-
 set +e
-"$dir_name"/output/fe/bin/stop_fe.sh ; "$dir_name"/output/be/bin/stop_be.sh
+# "$dir_name"/output/fe/bin/stop_fe.sh
+# "$dir_name"/output/be/bin/stop_be.sh
 # rm -rf "$dir_name"
 set -e
-

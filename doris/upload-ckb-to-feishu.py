@@ -66,7 +66,7 @@ class FeishuApp(object):
     def prepare(self):
         self.get_bitable_info()
 
-    def upload_ckb(self, result_file):
+    def upload_ckb(self, result_file, runtime_log_file=''):
         doris_version = ''
         relative_to_total = ''
         relative_to_mechine = ''
@@ -100,10 +100,25 @@ class FeishuApp(object):
         }
         resp = requests.post(
             self.media_url, headers=post_file_headers, files=files)
-        print('post log file')
+        print('post result_file')
         self.check_resp(resp)
         # pprint(resp.json())
-        file_token = resp.json()['data']['file_token']
+        result_file_token = resp.json()['data']['file_token']
+        runtime_file_token = ''
+        if runtime_log_file:
+            files = {
+                'file_name': (None, runtime_log_file),
+                'parent_type': (None, 'bitable_file'),
+                'parent_node': (None, feishu_config_dict.get('feishu_bitable_token')),
+                'size': (None, os.path.getsize(runtime_log_file)),
+                'file': open(runtime_log_file, 'rb'),
+            }
+            resp = requests.post(
+                self.media_url, headers=post_file_headers, files=files)
+            print('post runtime_log_file')
+            self.check_resp(resp)
+            # pprint(resp.json())
+            runtime_file_token = resp.json()['data']['file_token']
 
         url = self.bitable_records_url.replace(
             ':app_token', self.bitable_token).replace(":table_id", table_id)
@@ -112,7 +127,7 @@ class FeishuApp(object):
                 'doris-version': doris_version.strip(),
                 'Relative time(to total)': float(relative_to_total),
                 'Relative time(to machine)': float(relative_to_mechine),
-                'detail': [{'file_token': file_token}],
+                'detail': [{'file_token': result_file_token}, {'file_token': runtime_file_token}] if runtime_file_token else [{'file_token': result_file_token}],
                 'commit': 'https://github.com/apache/doris/commit/' + doris_version.strip().split('-')[1]
             }
         }
@@ -134,7 +149,10 @@ def main():
         sys.exit(1)
     app = FeishuApp()
     result_file = sys.argv[1]
-    if app.upload_ckb(result_file):
+    runtime_log_file = ''
+    if len(sys.argv) > 2:
+        runtime_log_file = sys.argv[2]
+    if app.upload_ckb(result_file, runtime_log_file):
         sys.exit(0)
     else:
         sys.exit(1)
