@@ -48,6 +48,9 @@ echo "
 stream_load_default_timeout_second=3600
 priority_networks = ${IPADDR}/24
 " >"$DORIS_HOME"/fe/conf/fe_custom.conf
+echo >note_file
+cat "$DORIS_HOME"/fe/conf/fe_custom.conf >>note_file
+echo >>note_file
 
 echo "
 streaming_load_max_mb=102400
@@ -59,6 +62,8 @@ write_buffer_size=1009715200
 disable_auto_compaction=true
 priority_networks = ${IPADDR}/24
 " >"$DORIS_HOME"/be/conf/be_custom.conf
+cat "$DORIS_HOME"/be/conf/be_custom.conf >>note_file
+echo >>note_file
 
 opt_session_variables="
 exec_mem_limit=32G;
@@ -68,6 +73,7 @@ enable_function_pushdown=true;
 enable_local_exchange=true;
 load_mem_limit=17179869184;
 "
+echo -e "$opt_session_variables" >>note_file
 
 # Start Frontend
 "$DORIS_HOME"/fe/bin/start_fe.sh --daemon

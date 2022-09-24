@@ -16,7 +16,7 @@ bash get-doris-runtime-conf.sh >>"$rumtime_log"
 bash get-table-schema.sh >>"$rumtime_log"
 bash get-ckb-score.sh >"$result_log"
 
-python3 upload-ckb-to-feishu.py "$result_log" "$rumtime_log"
+python3 upload-ckb-to-feishu.py "$result_log" "$rumtime_log" "note_file"
 
 ##########################################
 date
@@ -37,6 +37,6 @@ bash get-table-schema.sh >>"$rumtime_log"
 bash get-ckb-score.sh >"$result_log"
 echo 'compaction done' >>"$result_log"
 
-python3 upload-ckb-to-feishu.py "$result_log" "$rumtime_log"
+python3 upload-ckb-to-feishu.py "$result_log" "$rumtime_log" "note_file"
 
 ./kill-doris-cluster.sh

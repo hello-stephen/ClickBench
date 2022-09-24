@@ -8,18 +8,6 @@ from pprint import pprint
 import sys
 import requests
 
-feishu_config_dict = {
-    "feishu_app_id": "cli_a2db93a761b8500d",
-    "feishu_app_secret": "i4hEOxQAPmBL0eaZzjR1Ym1aieSfL3Pq",
-    "feishu_token_url": 'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal',
-    "feishu_bitable_token": "bascnFsOPkWY3bwFHGIsePCAuXb",
-    "feishu_bitable_get_tables_url": "https://open.feishu.cn/open-apis/bitable/v1/apps/:app_token/tables",
-    "feishu_bitable_add_fields_url": "https://open.feishu.cn/open-apis/bitable/v1/apps/:app_token/tables/:table_id/fields",
-    "feishu_bitable_records_url": "https://open.feishu.cn/open-apis/bitable/v1/apps/:app_token/tables/:table_id/records",
-    "feishu_bitable_record_url": "https://open.feishu.cn/open-apis/bitable/v1/apps/:app_token/tables/:table_id/records/:record_id",
-    "feishu_media_url": "https://open.feishu.cn/open-apis/drive/v1/medias/upload_all"
-}
-
 
 class FeishuApp(object):
     def __init__(self):
@@ -66,7 +54,7 @@ class FeishuApp(object):
     def prepare(self):
         self.get_bitable_info()
 
-    def upload_ckb(self, result_file, runtime_log_file=''):
+    def upload_ckb(self, result_file, runtime_log_file='', note_file=''):
         doris_version = ''
         relative_to_total = ''
         relative_to_mechine = ''
@@ -94,7 +82,7 @@ class FeishuApp(object):
         files = {
             'file_name': (None, result_file),
             'parent_type': (None, 'bitable_file'),
-            'parent_node': (None, feishu_config_dict.get('feishu_bitable_token')),
+            'parent_node': (None, self.bitable_token),
             'size': (None, os.path.getsize(result_file)),
             'file': open(result_file, 'rb'),
         }
@@ -109,7 +97,7 @@ class FeishuApp(object):
             files = {
                 'file_name': (None, runtime_log_file),
                 'parent_type': (None, 'bitable_file'),
-                'parent_node': (None, feishu_config_dict.get('feishu_bitable_token')),
+                'parent_node': (None, self.bitable_token),
                 'size': (None, os.path.getsize(runtime_log_file)),
                 'file': open(runtime_log_file, 'rb'),
             }
@@ -122,13 +110,17 @@ class FeishuApp(object):
 
         url = self.bitable_records_url.replace(
             ':app_token', self.bitable_token).replace(":table_id", table_id)
+        note_file_str = ''
+        if note_file:
+            note_file_str = open(note_file, 'r').read()
         new_record_data = {
             'fields': {
                 'doris-version': doris_version.strip(),
                 'Relative time(to total)': float(relative_to_total),
                 'Relative time(to machine)': float(relative_to_mechine),
                 'detail': [{'file_token': result_file_token}, {'file_token': runtime_file_token}] if runtime_file_token else [{'file_token': result_file_token}],
-                'commit': 'https://github.com/apache/doris/commit/' + doris_version.strip().split('-')[1]
+                'commit': 'https://github.com/apache/doris/commit/' + doris_version.strip().split('-')[1],
+                'note': note_file_str
             }
         }
         print('will add record: ')
@@ -150,9 +142,12 @@ def main():
     app = FeishuApp()
     result_file = sys.argv[1]
     runtime_log_file = ''
+    note_file = ''
     if len(sys.argv) > 2:
         runtime_log_file = sys.argv[2]
-    if app.upload_ckb(result_file, runtime_log_file):
+    if len(sys.argv) > 3:
+        note_file = sys.argv[3]
+    if app.upload_ckb(result_file, runtime_log_file, note_file):
         sys.exit(0)
     else:
         sys.exit(1)
