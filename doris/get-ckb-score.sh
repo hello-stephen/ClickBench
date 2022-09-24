@@ -94,6 +94,8 @@ paste best_hot.csv machine_baseline.csv | awk '{r=($1+0.01)/($2+0.01); printf("%
 echo -e "Doris version:\t$(head -n1 run.log)"
 echo -e "Relative time(to total, geometric mean of column ratio_of_total):\t$total_score"
 echo -e "Relative time(to machine, geometric mean of column ratio_of_machine):\t$machine_score"
+echo -e "load time:\t$(cat loadtime) seconds"
+echo -e "storage size:\t$(cat storage_size) bytes ($(echo "scale=3;$(cat storage_size)/1024/1024/1024" | bc) GB)"
 echo -e "column best:\t\t\tbest of hot1 and hot2"
 echo -e "column total_baseline:\t\tdata from https://benchmark.clickhouse.com/"
 echo -e "column ratio_of_total:\t\t(best+0.01)/(total_baseline+0.01)"
@@ -104,4 +106,3 @@ echo -e "query \tcold \thot1 \thot2 \tbest \ttotal_baseline \tratio_of_total \tm
 paste result.csv best_hot.csv total_baseline.csv hot_ratio_to_total_baseline.csv machine_baseline.csv hot_ratio_to_machine_baseline.csv | tr ',' '\t'
 echo -e "total\t${total_cold}\t${total_hot1}\t${total_hot2}\t${total_best_hot}"
 rm -f best_hot.csv total_baseline.csv hot_ratio_to_total_baseline.csv machine_baseline.csv hot_ratio_to_machine_baseline.csv
-echo -e "load time: $(cat loadtime) seconds"

@@ -134,14 +134,14 @@ END=$(date +%s)
 LOADTIME=$(echo "$END - $START" | bc)
 echo "Load data costs $LOADTIME seconds"
 export LOADTIME
-echo "LOADTIME" >loadtime
+echo "$LOADTIME" >loadtime
 date
 
 # This if you want to obtain the "tuned" result. Analyze table:
 #time mysql -h 127.0.0.1 -P9030 -uroot hits -e "ANALYZE TABLE hits"
 
 # Dataset contains 23676271984 bytes and 99997497 rows
-du -bcs "$DORIS_HOME"/be/storage/
+du -bs "$DORIS_HOME"/be/storage/ | tee storage_size
 mysql -h 127.0.0.1 -P9030 -uroot hits -e "SELECT count(*) FROM hits"
 date
 
