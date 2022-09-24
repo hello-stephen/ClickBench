@@ -141,7 +141,7 @@ date
 #time mysql -h 127.0.0.1 -P9030 -uroot hits -e "ANALYZE TABLE hits"
 
 # Dataset contains 23676271984 bytes and 99997497 rows
-du -bs "$DORIS_HOME"/be/storage/ | tee storage_size
+du -bs "$DORIS_HOME"/be/storage/ | cut -f1 | tee storage_size
 mysql -h 127.0.0.1 -P9030 -uroot hits -e "SELECT count(*) FROM hits"
 date
 
