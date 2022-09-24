@@ -10,6 +10,7 @@ if [[ -n "$1" ]]; then
     url="$1"
 else
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-3d2a73c02-release-20220922221410.tar.gz'
+    url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-72fdfc0e3-release-20220923220301.tar.gz'
 fi
 echo "Source bin from $url"
 
