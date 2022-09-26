@@ -121,18 +121,113 @@ def geometric_mean(data):
     return pow(total,1/len(data))
 
 class SystemResult():
-    def __init__(self, data_dict={}) -> None:
-        self.system=data_dict.get('system')
+    def __init__(self, data={}) -> None:
+        self.system = data.get('system')
+        self.load_time = data.get('load_time')
+        self.data_size = data.get('data_size')
+        self.result = data.get('result')
+        self.date = data.get('date')
+        self.machine = data.get('machine')
+        self.cluster_size = data.get('cluster_size')
+        self.comment = data.get('comment')
+        self.tags = data.get('tags')
+        self.best_hot = []
+        self.cal_best_hot()
+
+    def get_best_hot(self):
+        return self.best_hot
+
+    def cal_best_hot(self):
+        if not self.result:
+            print('no reusult !!!')
+            return []
+        for q in self.result:
+            best = None
+            hot0 = q[1]
+            hot1 = q[2]
+            if hot0 and hot1:
+                best = min(hot0, hot1)
+            elif hot1:
+                best = hot1
+            elif hot0:
+                best = hot0
+            self.best_hot.append(best)
+        return self.best_hot
+
+    def get_result_name(self):
+        if self.system and self.machine:
+            system_and_machine = self.system + ' (' + self.machine + ')'
+            # print(system_and_machine, '22222222222222222', self.cluster_size)
+            if self.cluster_size is not None and self.cluster_size != 'serverless' and int(self.cluster_size) > 1:
+                # print(self.system, type(self.system), self.machine, type(self.machine), self.cluster_size, type(self.cluster_size))
+                system_and_machine = self.system + ' (' + self.machine + ' x ' + str(self.cluster_size) + ')'
+            return system_and_machine
+        else:
+            print('get_result_name error!!!')
+        return
+
+class SystemResultDict(object):
+    def __init__(self, data={}):
+        self.results={}
+        for sr in data:
+            system_result=SystemResult(sr)
+            k=system_result.get_result_name()
+            if k:
+                self.results[k]=system_result
+        self.system_machine_score = {}
+
+    def get_baseline(self, new_system_result=[]):
+        system_result_best_list = []
+        for system_result in self.results.values():
+            system_result_best_list.append(system_result.get_best_hot())
+        if new_system_result:
+            system_result_best_list.append(new_system_result)
+        
+        # print('system_result_best_list', len(system_result_best_list))
+        # for i in system_result_best_list:
+        #     print(i)
+        
+        baseline_total=[]
+        for i in range(0, 43):
+            valid_list=[j[i] for j in system_result_best_list if j[i]]
+            baseline_total.append(min(valid_list))
+
+        print('base2', baseline_total)
+        return baseline_total
+
+    def cal_score(self, baseline=[], best_hot=[]):
+        
+        return
+    
+    def cal_score_all(self, new_system_result={}):
+        score_all = {}
+        # print('bestline')
+        if new_system_result:
+            new_system_name='doris'
+            new_system_results=[0.02,0.03,0.05,0.06,0.35,0.68,0.01,0.03,0.38,0.47,0.09,0.1,0.59,0.81,0.85,0.37,1.2,0.25,2.4,0.01,1.13,0.97,1.01,2.62,0.18,0.17,0.2,1.25,3.22,0.68,0.44,0.5,3.14,4.31,4.39,0.51,0.1,0.05,0.02,0.13,0.03,0.02,0.02]
+            baseline=self.get_baseline(new_system_results)
+            new_system_ratio=[((new_system_results[i]+0.01)/(baseline[i]+0.01)) for i in range(0, 43)]
+            score_all[new_system_name] = geometric_mean(new_system_ratio)
+
+        for system_machine, sr in self.results.items():
+            best_hot=sr.get_best_hot()
+            # print(system_machine, '|', best_hot)
+            if None in best_hot:
+                # print(system_machine, best_hot)
+                continue
+            ratio = [((best_hot[i]+0.01)/(baseline[i]+0.01)) for i in range(0, 43)]
+            score_all[system_machine] = geometric_mean(ratio)
+        for i in dict(sorted(score_all.items(), key=lambda item: item[1])).items():
+            print(i)
+        return
+
 
 def parse2():
-    data_dict={}
-    for item in data:
-        key = item['system'] + ' ' + item['machine']
-        data_dict[key] = item
+    rs=SystemResultDict(data)
+    # rs.get_baseline()
+    doris_result={'doris':[0.02,0.03,0.05,0.06,0.35,0.68,0.01,0.03,0.38,0.47,0.09,0.1,0.59,0.81,0.85,0.37,1.2,0.25,2.4,0.01,1.13,0.97,1.01,2.62,0.18,0.17,0.2,1.25,3.22,0.68,0.44,0.5,3.14,4.31,4.39,0.51,0.1,0.05,0.02,0.13,0.03,0.02,0.02]}
+    rs.cal_score_all(doris_result)
 
-    result_dict={}
-    for k,v in data_dict:
-        result_dict[k] = v['result']
     
     
 
@@ -145,8 +240,9 @@ def parse():
         baselines.append([])
     results=[]
     for i in data:
-        if i['machine'] == 'c6a.4xlarge, 500gb gp2':
-            results.append(i['result'])
+        # if i['machine'] == 'c6a.4xlarge, 500gb gp2':
+        #     results.append(i['result'])
+        results.append(i['result'])
     
 
     for system_result in results:
@@ -164,7 +260,7 @@ def parse():
             
         
     base=[min(i) for i in baselines]
-    print('baseline', base)
+    # print('baseline', base)
     # print(baselines)
     ck_result=[[0.011,0.001,0.001],[0.04,0.015,0.013],[0.045,0.021,0.023],[0.09,0.023,0.023],[1.922,1.565,1.576],[0.961,0.737,0.739],[0.04,0.023,0.018],[0.032,0.028,0.028],[0.321,0.287,0.275],[0.632,0.284,0.287],[0.166,0.124,0.118],[0.235,0.1,0.102],[1.006,0.182,0.159],[1.637,0.216,0.213],[0.871,0.174,0.177],[0.258,0.148,0.148],[1.804,0.37,0.358],[1.235,0.275,0.278],[3.143,0.854,0.815],[0.071,0.024,0.016],[8.816,0.215,0.155],[10.239,0.203,0.173],[19.179,0.388,0.357],[43.152,0.824,0.823],[1.821,0.059,0.052],[0.992,0.045,0.051],[2.539,0.063,0.058],[9.258,0.3,0.278],[7.923,0.961,0.936],[0.445,0.431,0.428],[1.367,0.131,0.113],[4.819,0.205,0.175],[3.808,0.739,0.726],[8.935,0.607,0.6],[8.988,0.634,0.615],[0.242,0.22,0.226],[0.075,0.058,0.056],[0.038,0.028,0.026],[0.043,0.028,0.021],[0.172,0.127,0.119],[0.028,0.018,0.017],[0.027,0.019,0.014],[0.018,0.026,0.015]]
     value_list=[]
@@ -185,8 +281,8 @@ def parse():
         origin_list.append(min(hot0, hot1))
         value = (min(hot0, hot1)+0.01) / (base[i] + 0.01)
         value_list.append(value)
-    print(origin_list)
-    print('sr', value_list)
+    # print(origin_list)
+    # print('sr', value_list)
     print('sr score', geometric_mean(value_list))
 
     doris_origin_list=[0.08,0.04,0.05,0.04,1.51,0.87,0.09,0.02,0.74,0.88,0.17,0.19,0.67,1.37,0.95,0.49,1.40,0.34,2.89,0.01,0.85,0.74,0.77,2.25,0.21,0.18,0.21,1.34,3.47,0.73,0.60,0.69,4.14,4.85,4.85,1.33,0.09,0.06,0.06,0.20,0.05,0.05,0.04]
@@ -194,12 +290,13 @@ def parse():
     for i in range(0,43):
         value = (doris_origin_list[i]+0.01) / (base[i] + 0.01)
         value_list.append(value)
-    print('doris', value_list)
+    # print('doris', value_list)
     print('doris score', geometric_mean(value_list))
+    print('base1', base)
 
 parse()
-
-
+print('-------------------')
+parse2()
 
 [0.000155, 0.01, 0.033, 0.029207, 0.62, 0.93, 0.024, 0.015, 0.58, 0.68, 0.09, 0.09, 0.294, 1.029, 0.897, 0.55, 2.35, 0.37, 4.38, 0.0001574420020915568, 0.07, 0.395884, 0.395477, 0.335, 0.005, 0.13, 0.139861, 0.733, 5.57, 0.7135983259940986, 0.52, 0.712, 4.82, 0.494, 4.035, 1.188, 0.040539135996368714, 0.019683108999743126, 0.01, 0.08547276000899728, 0.007633563989656977, 0.007858585988287814, 0.01]
 [0.000155, 0.01, 0.033, 0.029207, 0.62, 0.93, 0.024, 0.015, 0.58, 0.68, 0.09, 0.09, 0.294, 1.029, 0.897, 0.55, 2.35, 0.37, 4.38, 0.0001574420020915568, 0.07, 0.395884, 0.395477, 0.335, 0.005, 0.13, 0.139861, 0.733, 5.57, 0.7135983259940986, 0.52, 0.712, 4.82, 0.494, 4.035, 1.188, 0.040539135996368714, 0.019683108999743126, 0.01, 0.08547276000899728, 0.007633563989656977, 0.007858585988287814, 0.01]
