@@ -5,6 +5,14 @@ set -o pipefail
 
 echo -e "\n\n\n\n
 #############################
+host info
+hostname
+#############################
+"
+hostname
+
+echo -e "\n\n\n\n
+#############################
 cpu info
 lscpu
 #############################

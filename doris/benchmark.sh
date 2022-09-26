@@ -12,6 +12,7 @@ else
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-3d2a73c02-release-20220922221410.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-72fdfc0e3-release-20220923220301.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-c4386d863-release-20220924145346.tar.gz'
+    url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-31f38a5c2-release-20220925102436.tar.gz'
 fi
 echo "Source bin from $url"
 
@@ -58,7 +59,8 @@ doris_scanner_thread_pool_thread_num=8
 tc_enable_aggressive_memory_decommit=false
 enable_new_scan_node=false
 mem_limit=95%
-write_buffer_size=1009715200
+write_buffer_size=1609715200
+load_process_max_memory_limit_percent=90
 disable_auto_compaction=true
 priority_networks = ${IPADDR}/24
 " >"$DORIS_HOME"/be/conf/be_custom.conf
@@ -71,7 +73,7 @@ parallel_fragment_exec_instance_num=16;
 enable_single_distinct_column_opt=true;
 enable_function_pushdown=true;
 enable_local_exchange=true;
-load_mem_limit=17179869184;
+load_mem_limit=34359738368;
 "
 echo -e "$opt_session_variables" >>note_file
 
@@ -101,7 +103,7 @@ while true; do
     be_version=$(mysql -h127.0.0.1 -P9030 -uroot -e 'show backends' | cut -f22 | sed -n '2,$p')
     if [[ -n "${be_version}" ]]; then
         echo "be version: ${be_version}"
-        curl '127.0.0.1:8040/varz' | grep 'chunk_reserved_bytes_limit\|storage_page_cache_limit\|streaming_load_max_mb\|doris_scanner_thread_pool_thread_num\|tc_enable_aggressive_memory_decommit\|enable_new_scan_node\|mem_limit\|disable_auto_compaction\|priority_networks'
+        curl '127.0.0.1:8040/varz' | grep 'load_process_max_memory_limit_percent\|chunk_reserved_bytes_limit\|storage_page_cache_limit\|streaming_load_max_mb\|doris_scanner_thread_pool_thread_num\|tc_enable_aggressive_memory_decommit\|enable_new_scan_node\|mem_limit\|disable_auto_compaction\|priority_networks'
         break
     else
         echo 'wait for Doris be started.'
