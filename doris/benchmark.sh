@@ -13,7 +13,7 @@ else
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-72fdfc0e3-release-20220923220301.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-c4386d863-release-20220924145346.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-31f38a5c2-release-20220925102436.tar.gz'
-    url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-5c6c13e946-release-20220926141740.tar.gz'
+    url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-fee7e78954-release-20220926153547.tar.gz'
 fi
 echo "Source bin from $url"
 
@@ -50,17 +50,17 @@ echo "
 stream_load_default_timeout_second=3600
 priority_networks = ${IPADDR}/24
 " >"$DORIS_HOME"/fe/conf/fe_custom.conf
-echo >note_file
+echo "c6a.metal(192 vCPU  384 GiB),500gb gp2" >note_file
 cat "$DORIS_HOME"/fe/conf/fe_custom.conf >>note_file
 echo >>note_file
 
 echo "
 streaming_load_max_mb=102400
-doris_scanner_thread_pool_thread_num=8
+doris_scanner_thread_pool_thread_num=24
 tc_enable_aggressive_memory_decommit=false
 enable_new_scan_node=false
 mem_limit=95%
-write_buffer_size=1609715200
+write_buffer_size=10097152000
 load_process_max_memory_limit_percent=90
 disable_auto_compaction=true
 priority_networks = ${IPADDR}/24
@@ -74,7 +74,7 @@ parallel_fragment_exec_instance_num=16;
 enable_single_distinct_column_opt=true;
 enable_function_pushdown=true;
 enable_local_exchange=true;
-load_mem_limit=34359738368;
+load_mem_limit=204359738368;
 "
 echo -e "$opt_session_variables" >>note_file
 
@@ -133,7 +133,7 @@ fi
 
 date
 START=$(date +%s)
-for i in $(ls hits.tsv); do
+for i in hits*.tsv; do
     echo "start loading ${i} ..."
     curl --location-trusted \
         -u root: \
