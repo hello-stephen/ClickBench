@@ -14,6 +14,7 @@ else
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-c4386d863-release-20220924145346.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-31f38a5c2-release-20220925102436.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-5c6c13e946-release-20220926141740.tar.gz'
+    url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-06e646a551-release-20220926190600.tar.gz'
 fi
 echo "Source bin from $url"
 
@@ -133,7 +134,7 @@ fi
 
 date
 START=$(date +%s)
-for i in $(ls hits.tsv); do
+for i in hits*.tsv; do
     echo "start loading ${i} ..."
     curl --location-trusted \
         -u root: \

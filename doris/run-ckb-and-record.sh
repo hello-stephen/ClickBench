@@ -1,6 +1,10 @@
 #!/bin/bash
 ./kill-doris-cluster.sh
 pip3 install requests
+if [[ ! -d logs ]]; then mkdir logs; fi
+mv run-ckb-and-record-* logs/
+mv runtime_* logs/
+mv ckb_result_* logs/
 set -e
 
 suffix=$(date +%Y%m%d%H%M%S)
