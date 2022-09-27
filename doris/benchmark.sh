@@ -13,6 +13,7 @@ else
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-72fdfc0e3-release-20220923220301.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-c4386d863-release-20220924145346.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-31f38a5c2-release-20220925102436.tar.gz'
+    url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-5c6c13e946-release-20220926141740.tar.gz'
 fi
 echo "Source bin from $url"
 
@@ -123,8 +124,10 @@ mysql -h 127.0.0.1 -P9030 -uroot -e 'show variables' | grep 'load_mem_limit\|exe
 
 # Load data
 
-# wget --continue 'https://datasets.clickhouse.com/hits_compatible/hits.tsv.gz'
-# gzip -d hits.tsv.gz
+if [[ ! -f hits.tsv.gz ]] && [[ ! -f hits.tsv ]]; then
+    wget --continue 'https://datasets.clickhouse.com/hits_compatible/hits.tsv.gz'
+    gzip -d hits.tsv.gz
+fi
 # # Split file into chunks
 # # split -a 1 -d -l 10000000 hits.tsv hits_split
 

@@ -96,6 +96,7 @@ echo -e "Relative time(to total, geometric mean of column ratio_of_total):\t$tot
 echo -e "Relative time(to machine, geometric mean of column ratio_of_machine):\t$machine_score"
 echo -e "load time:\t$(cat loadtime) seconds"
 echo -e "storage size:\t$(cat storage_size) bytes ($(echo "scale=3;$(cat storage_size)/1024/1024/1024" | bc) GB)"
+echo -e "mechine:\t$(sudo dmidecode -s system-manufacturer), $(sudo dmidecode -s system-product-name)"
 echo -e "column best:\t\t\tbest of hot1 and hot2"
 echo -e "column total_baseline:\t\tdata from https://benchmark.clickhouse.com/"
 echo -e "column ratio_of_total:\t\t(best+0.01)/(total_baseline+0.01)"
