@@ -20,6 +20,7 @@ kill -9 \$(pgrep -f 'doris_be')
 # kill -9 "$(ps -ef | grep -v 'grep' | grep 'doris_be' | awk '{print $2}')"
 kill -9 "$(pgrep -f 'doris_be')"
 
+sleep 5
 
-if ps -ef | grep -v 'grep' | grep 'doris.PaloFe'; then exit 1;fi
-if ps -ef | grep -v 'grep' | grep 'doris_be'; then exit 1;fi
+if pgrep 'doris.PaloFe'; then echo "stop doris FE failed !!!"; fi
+if pgrep 'doris_be'; then echo "stop doris BE failed !!!"; fi
