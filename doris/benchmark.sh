@@ -70,7 +70,7 @@ echo >>note_file
 
 opt_session_variables="
 exec_mem_limit=32G;
-parallel_fragment_exec_instance_num=16;
+parallel_fragment_exec_instance_num=48;
 enable_single_distinct_column_opt=true;
 enable_function_pushdown=true;
 enable_local_exchange=true;
