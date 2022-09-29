@@ -25,3 +25,11 @@ mysql -h127.1 -P9030 -uroot -e'show variables'
 #############################
 "
 mysql -h127.1 -P9030 -uroot -e'show variables'
+
+echo -e "\n\n\n\n
+#############################
+tail -n 10 "$(cat doris_home)"/fe/bin/start_fe.sh
+#############################
+"
+
+tail -n 10 "$(cat doris_home)"/fe/bin/start_fe.sh

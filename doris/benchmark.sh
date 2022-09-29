@@ -15,6 +15,8 @@ else
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-31f38a5c2-release-20220925102436.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-5c6c13e946-release-20220926141740.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-06e646a551-release-20220926190600.tar.gz'
+    url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf_topn-bbc791e774-release-20220929155416.tar.gz'
+    # url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf_topn-c573221af7-release-20220929200042.tar.gz'
 fi
 echo "Source bin from $url"
 
@@ -54,6 +56,10 @@ priority_networks = ${IPADDR}/24
 echo >note_file
 cat "$DORIS_HOME"/fe/conf/fe_custom.conf >>note_file
 echo >>note_file
+
+
+sed -i 's/-XX:OnOutOfMemoryError/ -Dnetworkaddress.cache.ttl=100000 -XX:OnOutOfMemoryError/g' "$DORIS_HOME"/fe/bin/start_fe.sh
+tail -n 10 "$DORIS_HOME"/fe/bin/start_fe.sh
 
 echo "
 streaming_load_max_mb=102400

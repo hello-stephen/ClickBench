@@ -156,19 +156,20 @@ class SystemResultDict(object):
         # print('base2', baseline_total)
         return baseline_total
 
-    def cal_score_machine(self, machine='c6a.4xlarge, 500gb gp2', new_system_result={}):
+    def cal_score_machine(self, machine='c6a.4xlarge, 500gb gp2', new_system_results=[]):
         score_machine = {}
         baseline_machine = self.get_baseline_machine()
-        if new_system_result:
-            if new_system_result.get('machine') != machine:
-                print("cal_score_machine different machine, error!")
-                return
-            nsr = SystemResult(new_system_result)
-            result = nsr.get_best_hot()
-            baseline_machine = self.get_baseline_machine(machine=nsr.get_machine(), new_system_result_best=result)
-            new_system_ratio = [((result[i]+0.01)/(baseline_machine[i]+0.01))
-                                for i in range(0, 43)]
-            score_machine[nsr.get_result_name()] = geometric_mean(new_system_ratio)
+        if new_system_results:
+            for new_system_result in new_system_results:
+                if new_system_result.get('machine') != machine:
+                    print("cal_score_machine different machine, error!")
+                    return
+                nsr = SystemResult(new_system_result)
+                result = nsr.get_best_hot()
+                baseline_machine = self.get_baseline_machine(machine=nsr.get_machine(), new_system_result_best=result)
+                new_system_ratio = [((result[i]+0.01)/(baseline_machine[i]+0.01))
+                                    for i in range(0, 43)]
+                score_machine[nsr.get_result_name()] = geometric_mean(new_system_ratio)
             # print('score_machine', score_machine)
         for name, result in self.results.items():
             if result.get_machine() != machine:
@@ -178,8 +179,8 @@ class SystemResultDict(object):
                 continue
             ratio = [((best_hot[i]+0.01)/(baseline_machine[i]+0.01)) for i in range(0, 43)]
             score_machine[name] = geometric_mean(ratio)
-        if new_system_result:
-            print('\n\n\n------------------------------\nsame machine with doris result\n------------------------------')
+        if new_system_results:
+            print('\n\n\n------------------------------\nsame machine with new result\n------------------------------')
         else:
             print('\n\n\n------------------------------\nsame machine\n------------------------------')
         print("%60s\t\t%s" % ('System & Machine','Relative time (lower is better)'))
@@ -188,17 +189,18 @@ class SystemResultDict(object):
             print("%60s\t\t%s" % (k, v))
         return
     
-    def cal_score_all(self, new_system_result={}):
+    def cal_score_all(self, new_system_results=[]):
         score_all = {}
         baseline = self.get_baseline()
-        if new_system_result:
-            nsr = SystemResult(new_system_result)
-            result = nsr.get_best_hot()
-            baseline = self.get_baseline(result)
-            # print('baseline', baseline)
-            new_system_ratio = [((result[i]+0.01)/(baseline[i]+0.01))
-                                for i in range(0, 43)]
-            score_all[nsr.get_result_name()] = geometric_mean(new_system_ratio)
+        if new_system_results:
+            for new_system_result in new_system_results:
+                nsr = SystemResult(new_system_result)
+                result = nsr.get_best_hot()
+                baseline = self.get_baseline(result)
+                # print('baseline', baseline)
+                new_system_ratio = [((result[i]+0.01)/(baseline[i]+0.01))
+                                    for i in range(0, 43)]
+                score_all[nsr.get_result_name()] = geometric_mean(new_system_ratio)
 
         for system_machine, sr in self.results.items():
             best_hot=sr.get_best_hot()
@@ -208,8 +210,8 @@ class SystemResultDict(object):
                 continue
             ratio = [((best_hot[i]+0.01)/(baseline[i]+0.01)) for i in range(0, 43)]
             score_all[system_machine] = geometric_mean(ratio)
-        if new_system_result:
-            print('\n\n\n------------------------------\ntotal with doris result\n------------------------------')
+        if new_system_results:
+            print('\n\n\n------------------------------\ntotal with new result\n------------------------------')
         else:
             print('\n\n\n------------------------------\ntotal\n------------------------------')
         print("%60s\t\t%s" % ('System & Machine','Relative time (lower is better)'))
@@ -224,11 +226,15 @@ def parse2():
     # rs.get_baseline()
     with open('result.json', 'r') as jf:
         doris_result = json.load(jf)
+    with open('SR-2.4.0-rc03.c6a.4xlarge.json', 'r') as f:
+        sr24_result = json.load(f)
+    with open('SR-2.4.0-rc03.c6a.metal.json', 'r') as f:
+        sr24_result2 = json.load(f)
     # pprint(doris_result)
     rs.cal_score_all()
-    rs.cal_score_all(doris_result)
+    rs.cal_score_all([doris_result,sr24_result,sr24_result2])
     rs.cal_score_machine()
-    rs.cal_score_machine(new_system_result=doris_result)
+    rs.cal_score_machine(new_system_results=[doris_result,sr24_result])
 
     
     
