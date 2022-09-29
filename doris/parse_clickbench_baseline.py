@@ -56,7 +56,7 @@ data = [
 ,{"system":"StarRocks","date":"2022-07-15","machine":"c6a.4xlarge, 500gb gp2","cluster_size":1,"comment":"","tags":["C++","column-oriented","MySQL compatible","ClickHouse derivative"],"load_time":656,"data_size":17737228888,"result":[[0.06,0.06,0.06],[0.05,0.03,0.02],[0.12,0.09,0.09],[1.04,0.11,0.11],[1.66,0.64,0.63],[1.07,0.99,1.02],[0.14,0.13,0.14],[0.07,0.02,0.03],[1.87,0.67,0.67],[2.03,0.82,0.82],[1.1,0.16,0.19],[1.63,0.17,0.18],[1.36,0.9,0.91],[3,1.64,1.68],[1.15,1.07,1.11],[1.15,0.62,0.65],[2.99,2.49,2.55],[2.45,0.53,0.52],[4.91,4.51,4.51],[0.04,0.01,0.01],[10.82,0.74,0.71],[12.4,0.64,0.64],[24.99,1.29,1.32],[None,8.15,8.37],[2.24,0.22,0.21],[1.02,0.18,0.17],[2.73,0.22,0.23],[11.26,1.08,1.06],[9.1,6.01,5.96],[1.3,1.23,1.18],[2.58,0.64,0.64],[5.71,0.96,1],[7.33,6.54,6.63],[14.22,6.64,6.14],[14.47,6.46,6.73],[1.91,1.91,1.94],[0.17,0.13,0.15],[0.06,0.03,0.03],[0.04,0.02,0.02],[0.19,0.17,0.18],[0.05,0.02,0.02],[0.04,0.02,0.02],[0.04,0.02,0.01]],"source":"starrocks/results/c6a.4xlarge.untuned.json"}
 ,{"system":"TimescaleDB (compression)","date":"2022-07-01","machine":"c6a.4xlarge, 500gb gp2","cluster_size":1,"comment":"","tags":["C","PostgreSQL compatible","column-oriented","time-series"],"load_time":4605,"data_size":20333747165,"result":[[2.28686,1.63642,1.64263],[32.6848,1.63476,1.40052],[60.8633,3.70484,3.59342],[36.4029,2.87091,2.80739],[110.391,38.9688,38.0549],[147.379,66.2513,65.6379],[33.0294,2.92031,2.84375],[33.0221,1.2984,1.19227],[115.694,47.4651,47.0125],[156.347,51.577,51.2694],[68.3301,4.75521,4.68007],[77.4356,5.55128,5.56577],[49.7741,11.2911,11.3265],[81.1014,14.9111,14.9541],[82.9569,14.6156,14.6331],[62.0338,26.399,26.3351],[103.259,36.4122,36.6076],[92.8828,26.2395,25.8991],[144.281,63.5102,63.7661],[7.00679,0.573073,0.536283],[75.0203,7.86344,7.90495],[81.2825,9.15868,9.01775],[104.084,13.9528,13.8435],[132.531,81.522,82.1561],[80.6965,3.28231,3.16574],[39.7693,2.51443,2.43849],[80.4245,3.26941,3.13916],[104.015,13.7044,13.5313],[307.26,253.127,252.147],[42.8549,22.4187,22.0325],[137.601,14.9592,14.6804],[136.767,22.8007,22.131],[263.005,168.551,163.355],[156.919,92.6308,91.702],[160.842,96.0512,97.1773],[62.8357,28.0336,28.7397],[1.75869,0.561604,0.541215],[0.46607,0.191863,0.19021],[0.303671,0.137579,0.136615],[2.32031,1.49223,1.52369],[0.563764,0.14192,0.138234],[0.372428,0.122989,0.123709],[0.448574,0.159092,0.154687]],"source":"timescaledb-compressed/results/c6a.4xlarge.json"}
 ,{"system":"TimescaleDB","date":"2022-07-01","machine":"c6a.4xlarge, 500gb gp2","cluster_size":1,"comment":"","tags":["C","PostgreSQL compatible","row-oriented","time-series"],"load_time":1620,"data_size":72882392030,"result":[[437.7,215.793,176.42],[327.026,259.568,244.578],[262.978,263.09,263.083],[262.807,263.046,266.847],[337.497,334.964,330.852],[355.689,356.801,362.894],[262.762,263.012,262.968],[263.055,263.016,263.028],[319.928,319.388,320.704],[323.584,322.224,322.488],[265.979,265.465,265.375],[266.019,265.543,265.462],[277.018,276.3,276.595],[280.352,279.251,279.572],[279.915,279.896,279.674],[296.377,298.506,297.659],[314.448,314.605,312.57],[302.668,302.672,303.039],[325.81,324.061,324.376],[262.447,262.698,262.704],[267.581,267.467,267.482],[268.085,267.466,267.696],[263.391,263.097,263.126],[38.291,0.435,0.335],[0.127,0.005,0.005],[263.138,263.1,263.092],[0.889,0.341,0.339],[267.586,267.498,267.491],[289.086,290.012,290.093],[263.22,263.071,263.109],[274.78,273.995,273.998],[282.217,281.39,281.47],[429.273,426.588,439.431],[448.808,418.724,418.207],[455.196,422.75,423.142],[299.263,296.937,297.261],[18.693,1.552,1.481],[18.125,0.945,0.937],[18.528,1.062,0.902],[18.268,1.779,1.77],[19.615,1.965,1.966],[18.97,1.435,1.43],[18.33,1.153,0.952]],"source":"timescaledb/results/c6a.4xlarge.json"}
-];
+]
 
 def geometric_mean(data):
     total=1.0
@@ -77,6 +77,9 @@ class SystemResult():
         self.tags = data.get('tags')
         self.best_hot = []
         self.cal_best_hot()
+
+    def get_machine(self):
+        return self.machine
 
     def get_best_hot(self):
         return self.best_hot
@@ -119,13 +122,27 @@ class SystemResultDict(object):
             if k:
                 self.results[k]=system_result
         self.system_machine_score = {}
+    
+    def get_baseline_machine(self, machine='c6a.4xlarge, 500gb gp2', new_system_result_best=[]):
+        system_result_best_list_machine = []
+        for system_result in self.results.values():
+            if system_result.get_machine() == machine:
+                system_result_best_list_machine.append(system_result.get_best_hot())
+        if new_system_result_best:
+            system_result_best_list_machine.append(new_system_result_best)
+        baseline_machine=[]
+        for i in range(0, 43):
+            valid_list=[j[i] for j in system_result_best_list_machine if j[i]]
+            baseline_machine.append(min(valid_list))
 
-    def get_baseline(self, new_system_result=[]):
+        return baseline_machine
+
+    def get_baseline(self, new_system_result_best=[]):
         system_result_best_list = []
         for system_result in self.results.values():
             system_result_best_list.append(system_result.get_best_hot())
-        if new_system_result:
-            system_result_best_list.append(new_system_result)
+        if new_system_result_best:
+            system_result_best_list.append(new_system_result_best)
         
         # print('system_result_best_list', len(system_result_best_list))
         # for i in system_result_best_list:
@@ -139,8 +156,36 @@ class SystemResultDict(object):
         # print('base2', baseline_total)
         return baseline_total
 
-    def cal_score(self, baseline=[], best_hot=[]):
-        
+    def cal_score_machine(self, machine='c6a.4xlarge, 500gb gp2', new_system_result={}):
+        score_machine = {}
+        baseline_machine = self.get_baseline_machine()
+        if new_system_result:
+            if new_system_result.get('machine') != machine:
+                print("cal_score_machine different machine, error!")
+                return
+            nsr = SystemResult(new_system_result)
+            result = nsr.get_best_hot()
+            baseline_machine = self.get_baseline_machine(machine=nsr.get_machine(), new_system_result_best=result)
+            new_system_ratio = [((result[i]+0.01)/(baseline_machine[i]+0.01))
+                                for i in range(0, 43)]
+            score_machine[nsr.get_result_name()] = geometric_mean(new_system_ratio)
+            # print('score_machine', score_machine)
+        for name, result in self.results.items():
+            if result.get_machine() != machine:
+                continue
+            best_hot = result.get_best_hot()
+            if None in best_hot:
+                continue
+            ratio = [((best_hot[i]+0.01)/(baseline_machine[i]+0.01)) for i in range(0, 43)]
+            score_machine[name] = geometric_mean(ratio)
+        if new_system_result:
+            print('\n\n\n------------------------------\nsame machine with doris result\n------------------------------')
+        else:
+            print('\n\n\n------------------------------\nsame machine\n------------------------------')
+        print("%60s\t\t%s" % ('System & Machine','Relative time (lower is better)'))
+        print("")
+        for k,v in dict(sorted(score_machine.items(), key=lambda item: item[1])).items():
+            print("%60s\t\t%s" % (k, v))
         return
     
     def cal_score_all(self, new_system_result={}):
@@ -163,6 +208,10 @@ class SystemResultDict(object):
                 continue
             ratio = [((best_hot[i]+0.01)/(baseline[i]+0.01)) for i in range(0, 43)]
             score_all[system_machine] = geometric_mean(ratio)
+        if new_system_result:
+            print('\n\n\n------------------------------\ntotal with doris result\n------------------------------')
+        else:
+            print('\n\n\n------------------------------\ntotal\n------------------------------')
         print("%60s\t\t%s" % ('System & Machine','Relative time (lower is better)'))
         print("")
         for k,v in dict(sorted(score_all.items(), key=lambda item: item[1])).items():
@@ -176,7 +225,10 @@ def parse2():
     with open('result.json', 'r') as jf:
         doris_result = json.load(jf)
     # pprint(doris_result)
+    rs.cal_score_all()
     rs.cal_score_all(doris_result)
+    rs.cal_score_machine()
+    rs.cal_score_machine(new_system_result=doris_result)
 
     
     
