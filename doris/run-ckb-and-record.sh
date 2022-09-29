@@ -1,4 +1,5 @@
 #!/bin/bash
+if ! grep PATH ~/.bashrc;then echo "export PATH=$PATH" >>~/.bashrc;fi
 ./kill-doris-cluster.sh
 pip3 install requests
 if [[ ! -d logs ]]; then mkdir logs; fi
@@ -20,7 +21,9 @@ bash get-compaction-info.sh >"$rumtime_log"
     bash get-doris-runtime-conf.sh
     bash get-table-schema.sh
     bash get-mechine-info.sh
+    set +e
     bash check-result.sh
+    set -e
 } >>"$rumtime_log"
 bash get-ckb-score.sh >"$result_log"
 echo 'load and run' >>"$result_log"

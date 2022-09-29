@@ -26,6 +26,7 @@ cat /home/ec2-user/ldy/ClickBench/doris/queries-sort.sql | while read query; do
 done
 
 cd /home/ec2-user/ldy/ClickBench/clickhouse
+set +e
 for i in {1..43}; do
     echo 
     echo query$i
@@ -33,3 +34,4 @@ for i in {1..43}; do
     diff ck-q$i.result ../doris/doris-result/doris-q$i.result2
     # read a
 done
+set -e
