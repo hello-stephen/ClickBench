@@ -20,6 +20,7 @@ bash get-compaction-info.sh >"$rumtime_log"
     bash get-doris-runtime-conf.sh
     bash get-table-schema.sh
     bash get-mechine-info.sh
+    bash check-result.sh
 } >>"$rumtime_log"
 bash get-ckb-score.sh >"$result_log"
 echo 'load and run' >>"$result_log"

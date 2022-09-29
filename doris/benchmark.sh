@@ -16,7 +16,7 @@ else
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-5c6c13e946-release-20220926141740.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-06e646a551-release-20220926190600.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf_topn-bbc791e774-release-20220929155416.tar.gz'
-    # url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf_topn-c573221af7-release-20220929200042.tar.gz'
+    url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-7d9d257b8c-release-20220929211534.tar.gz'
 fi
 echo "Source bin from $url"
 
