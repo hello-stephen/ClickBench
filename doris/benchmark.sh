@@ -34,12 +34,20 @@ dir_name="$(basename ${url} | cut -d'.' -f1)"
 set +e
 "$dir_name"/output/fe/bin/stop_fe.sh
 "$dir_name"/output/be/bin/stop_be.sh
+"$dir_name"/fe/bin/stop_fe.sh
+"$dir_name"/be/bin/stop_be.sh
 rm -rf "$dir_name"
 set -e
 
 mkdir "$dir_name"
 tar zxvf "$file_name" -C "$dir_name"
-DORIS_HOME="$ROOT/$dir_name/output/"
+flag=1
+if [[ -d "$ROOT/$dir_name/output/" ]];then
+    DORIS_HOME="$ROOT/$dir_name/output/"
+else
+    DORIS_HOME="$ROOT/$dir_name/"
+    flag=0
+fi
 export DORIS_HOME
 echo "$DORIS_HOME" >doris_home
 
@@ -49,41 +57,44 @@ export JAVA_HOME="/usr/lib/jvm/java-11-openjdk/"
 export PATH=$JAVA_HOME/bin:$PATH
 
 IPADDR=$(hostname -i)
-# This if you want to obtain the "tuned" result:
-echo "
-stream_load_default_timeout_second=3600
-priority_networks = ${IPADDR}/24
-" >"$DORIS_HOME"/fe/conf/fe_custom.conf
-echo >note_file
-cat "$DORIS_HOME"/fe/conf/fe_custom.conf >>note_file
-echo >>note_file
 
+if [[ $f == 1 ]];then
+    # This if you want to obtain the "tuned" result:
+    echo "
+    stream_load_default_timeout_second=3600
+    priority_networks = ${IPADDR}/24
+    " >"$DORIS_HOME"/fe/conf/fe_custom.conf
+    echo >note_file
+    cat "$DORIS_HOME"/fe/conf/fe_custom.conf >>note_file
+    echo >>note_file
 
-sed -i 's/-XX:OnOutOfMemoryError/ -Dnetworkaddress.cache.ttl=100000 -XX:OnOutOfMemoryError/g' "$DORIS_HOME"/fe/bin/start_fe.sh
-tail -n 10 "$DORIS_HOME"/fe/bin/start_fe.sh
+    sed -i 's/-XX:OnOutOfMemoryError/ -Dnetworkaddress.cache.ttl=100000 -XX:OnOutOfMemoryError/g' "$DORIS_HOME"/fe/bin/start_fe.sh
+    tail -n 10 "$DORIS_HOME"/fe/bin/start_fe.sh
 
-echo "
-streaming_load_max_mb=102400
-doris_scanner_thread_pool_thread_num=8
-tc_enable_aggressive_memory_decommit=false
-enable_new_scan_node=false
-mem_limit=95%
-write_buffer_size=1609715200
-load_process_max_memory_limit_percent=90
-disable_auto_compaction=true
-priority_networks = ${IPADDR}/24
-" >"$DORIS_HOME"/be/conf/be_custom.conf
-cat "$DORIS_HOME"/be/conf/be_custom.conf >>note_file
-echo >>note_file
+    echo "
+    streaming_load_max_mb=102400
+    doris_scanner_thread_pool_thread_num=8
+    tc_enable_aggressive_memory_decommit=false
+    enable_new_scan_node=false
+    mem_limit=95%
+    write_buffer_size=1609715200
+    load_process_max_memory_limit_percent=90
+    disable_auto_compaction=true
+    priority_networks = ${IPADDR}/24
+    " >"$DORIS_HOME"/be/conf/be_custom.conf
+    cat "$DORIS_HOME"/be/conf/be_custom.conf >>note_file
+    echo >>note_file
 
-opt_session_variables="
-exec_mem_limit=32G;
-parallel_fragment_exec_instance_num=16;
-enable_single_distinct_column_opt=true;
-enable_function_pushdown=true;
-enable_local_exchange=true;
-load_mem_limit=34359738368;
-"
+    opt_session_variables="
+    exec_mem_limit=32G;
+    parallel_fragment_exec_instance_num=16;
+    enable_single_distinct_column_opt=true;
+    enable_function_pushdown=true;
+    enable_local_exchange=true;
+    load_mem_limit=34359738368;
+    "
+fi
+
 echo -e "$opt_session_variables" >>note_file
 
 # Start Frontend
@@ -125,9 +136,11 @@ mysql -h 127.0.0.1 -P9030 -uroot -e "CREATE DATABASE hits"
 sleep 10
 mysql -h 127.0.0.1 -P9030 -uroot hits <"$ROOT"/create.sql
 
-for session_variable in ${opt_session_variables}; do
-    mysql -h 127.0.0.1 -P9030 -uroot -e "SET GLOBAL ${session_variable}"
-done
+if [[ $f == 1 ]];then
+    for session_variable in ${opt_session_variables}; do
+        mysql -h 127.0.0.1 -P9030 -uroot -e "SET GLOBAL ${session_variable}"
+    done
+fi
 mysql -h 127.0.0.1 -P9030 -uroot -e 'show variables' | grep 'load_mem_limit\|exec_mem_limit\|parallel_fragment_exec_instance_num\|enable_single_distinct_column_opt\|enable_function_pushdown\|enable_local_exchange'
 
 # Load data
