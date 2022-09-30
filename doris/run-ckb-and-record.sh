@@ -18,7 +18,7 @@ bash get-ckb-score.sh >"$result_log"
 echo 'load and run' >>"$result_log"
 
 python3 upload-ckb-to-feishu.py "$result_log" "$rumtime_log" "note_file"
-
+exit
 ##########################################
 date
 echo "after first run, wait 60s then run again"

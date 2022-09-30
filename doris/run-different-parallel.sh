@@ -3,14 +3,16 @@
 set -e
 
 DORIS_HOME='/home/ec2-user/ClickBench/doris/opt_perf-ce65d16748-release-20220927173100/output/'
+# sed -i 's/doris_scanner_thread_pool_thread_num.*/doris_scanner_thread_pool_thread_num=48/g' "$DORIS_HOME/be/conf/be_custom.conf"
+
 # for p in 8 16 24 32 40 48;do
-for p in 48 56 64;do
+for p in 16 16 16 16 16;do
     echo $p
 
     set +e
     ./kill-doris-cluster.sh
     set -e
-
+    grep doris_scanner "$DORIS_HOME/be/conf/be_custom.conf"
     # Start Frontend
     "$DORIS_HOME"/fe/bin/start_fe.sh --daemon
 
@@ -48,3 +50,5 @@ for p in 48 56 64;do
     sleep 10
 
 done
+
+

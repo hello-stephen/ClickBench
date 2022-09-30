@@ -14,6 +14,9 @@ else
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-c4386d863-release-20220924145346.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-31f38a5c2-release-20220925102436.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-fee7e78954-release-20220926153547.tar.gz'
+    url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-5c6c13e946-release-20220926141740.tar.gz'
+    url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-06e646a551-release-20220926190600.tar.gz'
+    url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-ce65d16748-release-20220927173100.tar.gz'
 fi
 echo "Source bin from $url"
 
@@ -50,17 +53,19 @@ echo "
 stream_load_default_timeout_second=3600
 priority_networks = ${IPADDR}/24
 " >"$DORIS_HOME"/fe/conf/fe_custom.conf
-echo "c6a.metal(192 vCPU  384 GiB),500gb gp2" >note_file
+echo -e "$(sudo dmidecode -s system-manufacturer), $(sudo dmidecode -s system-product-name)" >note_file
 cat "$DORIS_HOME"/fe/conf/fe_custom.conf >>note_file
 echo >>note_file
 
+sed -i 's/-XX:OnOutOfMemoryError/ -Dnetworkaddress.cache.ttl=100000 -XX:OnOutOfMemoryError/g' "$DORIS_HOME"/fe/bin/start_fe.sh
+
 echo "
 streaming_load_max_mb=102400
-doris_scanner_thread_pool_thread_num=24
+doris_scanner_thread_pool_thread_num=32
 tc_enable_aggressive_memory_decommit=false
 enable_new_scan_node=false
 mem_limit=95%
-write_buffer_size=10097152000
+write_buffer_size=3097152000
 load_process_max_memory_limit_percent=90
 disable_auto_compaction=true
 priority_networks = ${IPADDR}/24
@@ -69,8 +74,8 @@ cat "$DORIS_HOME"/be/conf/be_custom.conf >>note_file
 echo >>note_file
 
 opt_session_variables="
-exec_mem_limit=32G;
-parallel_fragment_exec_instance_num=48;
+exec_mem_limit=128G;
+parallel_fragment_exec_instance_num=16;
 enable_single_distinct_column_opt=true;
 enable_function_pushdown=true;
 enable_local_exchange=true;
