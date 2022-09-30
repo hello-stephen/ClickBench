@@ -11,6 +11,7 @@ pgrep -f 'doris.PaloFe' | xargs kill -9
 # kill -9 "$(ps -ef | grep -v 'grep' | grep 'doris.PaloFe' | awk '{print $2}')"
 # kill -9 "$(pgrep -f 'doris.PaloFe')"
 pgrep -f 'doris.PaloFe' | xargs sudo kill -9
+pgrep -f 'selectdb.PaloFe' | xargs sudo kill -9
 
 echo -e "\n\n\n\n
 #############################
@@ -21,6 +22,7 @@ pgrep -f 'doris_be' | xargs kill -9
 # kill -9 "$(ps -ef | grep -v 'grep' | grep 'doris_be' | awk '{print $2}')"
 # kill -9 "$(pgrep -f 'doris_be')"
 pgrep -f 'doris_be' | xargs sudo kill -9
+pgrep -f 'selectdb_be' | xargs sudo kill -9
 
 sleep 5
 
