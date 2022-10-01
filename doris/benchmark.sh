@@ -18,6 +18,7 @@ else
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf_topn-bbc791e774-release-20220929155416.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-7d9d257b8c-release-20220929211534.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf_topn-be93ab3aaf-release-20220929235134.tar.gz'
+    url='https://selectdb.s3.amazonaws.com/opt_perf-eae2b9ee9-release-20220930151345.tar.gz'
 fi
 echo "Source bin from $url"
 
