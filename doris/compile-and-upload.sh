@@ -23,11 +23,15 @@ branch_name=$(git symbolic-ref --short HEAD)
 commit_id=$(git rev-parse --short HEAD)
 package_dirname="${branch_name}-${commit_id}-release-${TIMESTAMP}"
 tar_file_name="${package_dirname}.tar.gz"
+
+tar_file_name="selectdb-1.2.0-linux_x64.tar.gz"
 echo "--make Doris tar file ${tar_file_name}"
 tar -zcf ${tar_file_name} \
     --exclude=fe/selectdb-meta/* \
     --exclude=fe/doris-meta* \
+    --exclude=fe/log/* \
     --exclude=be/storage/* \
+    --exclude=be/log/* \
     --exclude=be/lib/meta-tool \
     *
 
