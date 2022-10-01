@@ -59,7 +59,7 @@ export PATH=$JAVA_HOME/bin:$PATH
 
 IPADDR=$(hostname -i)
 
-if [[ $f == 1 ]];then
+if [[ $flag == 1 ]];then
     # This if you want to obtain the "tuned" result:
     echo "
     stream_load_default_timeout_second=3600
@@ -137,7 +137,7 @@ mysql -h 127.0.0.1 -P9030 -uroot -e "CREATE DATABASE hits"
 sleep 10
 mysql -h 127.0.0.1 -P9030 -uroot hits <"$ROOT"/create.sql
 
-if [[ $f == 1 ]];then
+if [[ $flag == 1 ]];then
     for session_variable in ${opt_session_variables}; do
         mysql -h 127.0.0.1 -P9030 -uroot -e "SET GLOBAL ${session_variable}"
     done
