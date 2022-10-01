@@ -19,6 +19,7 @@ else
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf-7d9d257b8c-release-20220929211534.tar.gz'
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf_topn-be93ab3aaf-release-20220929235134.tar.gz'
     url='https://selectdb.s3.amazonaws.com/opt_perf-eae2b9ee9-release-20220930151345.tar.gz'
+    url='https://selectdb.s3.amazonaws.com/selectdb-1.2.0-linux_x64.tar.gz'
 fi
 echo "Source bin from $url"
 
@@ -30,7 +31,7 @@ if [[ "$url" == "http"* ]]; then
         echo "$file_name already exists."
     fi
 fi
-dir_name="$(basename ${url} | cut -d'.' -f1)"
+dir_name="${file_name/.tar.gz/}"
 
 set +e
 "$dir_name"/output/fe/bin/stop_fe.sh
@@ -180,7 +181,7 @@ mysql -h 127.0.0.1 -P9030 -uroot hits -e "SELECT count(*) FROM hits"
 date
 
 # Run queries
-echo "$dir_name" | tee run.log
+echo "stable-$dir_name" | tee run.log
 # ./run.sh 2>&1 | tee -a run.log
 date
 
