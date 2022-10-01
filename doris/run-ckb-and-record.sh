@@ -12,7 +12,7 @@ suffix=$(date +%Y%m%d%H%M%S)
 result_log="ckb_result_${suffix}.log"
 rumtime_log="runtime_${suffix}.log"
 
-source benchmark.sh "$1" >"run-ckb-and-record-$suffix.log"
+source benchmark.sh "$1" 2>&1 | tee "run-ckb-and-record-$suffix.log"
 date
 bash get-compaction-info.sh >"$rumtime_log"
 ./run.sh 2>&1 | tee -a run.log
