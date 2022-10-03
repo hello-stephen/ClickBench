@@ -9,6 +9,7 @@ date
 sudo docker run -it --rm \
     --name doris_compile_"$(date +%s)" \
     -e BUILD_TYPE=$BUILD_TYPE \
+    -e USE_MEM_TRACKER=OFF \
     -v /home/ec2-user/.m2:/root/.m2 \
     -v ${DORIS_HOME}:${DORIS_HOME} \
     apache/doris:build-env-ldb-toolchain-latest \
