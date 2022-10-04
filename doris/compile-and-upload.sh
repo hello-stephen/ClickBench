@@ -2,6 +2,7 @@
 set -e
 
 DORIS_HOME="/home/ec2-user/selectdb-core/"
+rm -rf ${DORIS_HOME}/output/*
 BUILD_TYPE=release
 # BUILD_TYPE=asan
 sudo docker pull apache/doris:build-env-ldb-toolchain-latest
