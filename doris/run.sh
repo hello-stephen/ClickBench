@@ -28,6 +28,11 @@ cat queries.sql | while read query; do
 
     echo -n "query${QUERY_NUM}," | tee -a result.csv
     for i in $(seq 1 $TRIES); do
+        # start=$(date +%s%3N)
+        # mysql -h127.1 -P9030 -uroot -Dhits --quick -e"${query}" >/dev/null
+        # end=$(date +%s%3N)
+        # RES=$(echo "print('%0.3f' % (float($end-$start)/1000))" | python)
+
         RES=$(mysql -vvv -h127.1 -P9030 -uroot hits -e "${query}" | perl -nle 'print $1 if /\((\d+\.\d+)+ sec\)/' ||:)
 
         echo -n "${RES}" | tee -a result.csv

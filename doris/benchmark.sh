@@ -20,6 +20,8 @@ else
     url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf_topn-be93ab3aaf-release-20220929235134.tar.gz'
     url='https://selectdb.s3.amazonaws.com/opt_perf-eae2b9ee9-release-20220930151345.tar.gz'
     url='https://selectdb.s3.amazonaws.com/selectdb-1.2.0-linux_x64.tar.gz'
+    url='https://doris-build-1308700295.cos.ap-beijing.myqcloud.com/tmp/opt_perf_read_more-918580c568-release-20221003205137.tar.gz'
+    url='https://selectdb.s3.amazonaws.com/selectdb-2.0.0-linux_x64.tar.gz'
 fi
 echo "Source bin from $url"
 
@@ -74,6 +76,7 @@ if [[ $flag == 1 ]];then
     tail -n 10 "$DORIS_HOME"/fe/bin/start_fe.sh
 
     echo "
+    track_new_delete=false
     streaming_load_max_mb=102400
     doris_scanner_thread_pool_thread_num=8
     tc_enable_aggressive_memory_decommit=false
@@ -181,6 +184,7 @@ mysql -h 127.0.0.1 -P9030 -uroot hits -e "SELECT count(*) FROM hits"
 date
 
 # Run queries
+# echo "$dir_name" | tee run.log
 echo "stable-$dir_name" | tee run.log
 # ./run.sh 2>&1 | tee -a run.log
 date

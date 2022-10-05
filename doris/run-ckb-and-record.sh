@@ -27,8 +27,9 @@ bash get-compaction-info.sh >"$rumtime_log"
 } >>"$rumtime_log"
 bash get-ckb-score.sh >"$result_log"
 echo 'load and run' >>"$result_log"
+bash get-ckb-html.sh > "clickbench_$suffix.html"
 
-python3 upload-ckb-to-feishu.py "$result_log" "$rumtime_log" "note_file"
+python3 upload-ckb-to-feishu.py "$result_log" "$rumtime_log" "note_file" "clickbench_$suffix.html"
 
 ##########################################
 # date

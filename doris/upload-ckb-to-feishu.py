@@ -54,10 +54,11 @@ class FeishuApp(object):
     def prepare(self):
         self.get_bitable_info()
 
-    def upload_ckb(self, result_file, runtime_log_file='', note_file=''):
+    def upload_ckb(self, result_file, runtime_log_file='', note_file='', html_file=''):
         doris_version = ''
         relative_to_total = ''
         relative_to_mechine = ''
+        detail = []
         if os.path.exists(result_file):
             with open(result_file, 'r') as f:
                 line = f.readline()
@@ -92,6 +93,8 @@ class FeishuApp(object):
         self.check_resp(resp)
         # pprint(resp.json())
         result_file_token = resp.json()['data']['file_token']
+        detail.append({'file_token': result_file_token})
+    
         runtime_file_token = ''
         if runtime_log_file:
             files = {
@@ -107,6 +110,24 @@ class FeishuApp(object):
             self.check_resp(resp)
             # pprint(resp.json())
             runtime_file_token = resp.json()['data']['file_token']
+            detail.append({'file_token': runtime_file_token})
+        
+        html_file_token=''
+        if html_file:
+            files = {
+                'file_name': (None, html_file),
+                'parent_type': (None, 'bitable_file'),
+                'parent_node': (None, self.bitable_token),
+                'size': (None, os.path.getsize(html_file)),
+                'file': open(html_file, 'rb'),
+            }
+            resp = requests.post(
+                self.media_url, headers=post_file_headers, files=files)
+            print('post html_file')
+            self.check_resp(resp)
+            # pprint(resp.json())
+            html_file_token = resp.json()['data']['file_token']
+            detail.append({'file_token': html_file_token})
 
         url = self.bitable_records_url.replace(
             ':app_token', self.bitable_token).replace(":table_id", table_id)
@@ -118,7 +139,7 @@ class FeishuApp(object):
                 'doris-version': doris_version.strip(),
                 'Relative time(to total)': float(relative_to_total),
                 'Relative time(to machine)': float(relative_to_mechine),
-                'detail': [{'file_token': result_file_token}, {'file_token': runtime_file_token}] if runtime_file_token else [{'file_token': result_file_token}],
+                'detail': detail,
                 'commit': 'https://github.com/apache/doris/commit/' + doris_version.strip().split('-')[1],
                 'note': note_file_str
             }
@@ -143,11 +164,14 @@ def main():
     result_file = sys.argv[1]
     runtime_log_file = ''
     note_file = ''
+    html_file = ''
     if len(sys.argv) > 2:
         runtime_log_file = sys.argv[2]
     if len(sys.argv) > 3:
         note_file = sys.argv[3]
-    if app.upload_ckb(result_file, runtime_log_file, note_file):
+    if len(sys.argv) > 4:
+        html_file = sys.argv[4]
+    if app.upload_ckb(result_file, runtime_log_file, note_file, html_file):
         sys.exit(0)
     else:
         sys.exit(1)
