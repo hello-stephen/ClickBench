@@ -1,13 +1,14 @@
 #!/bin/bash
 
-StarRocks-2.3.0-rc03/fe/bin/stop_fe.sh ; StarRocks-2.3.0-rc03/be/bin/stop_be.sh ; rm -rf StarRocks-2.3.0-rc03
-
 # This benchmark should run on Amazon Linux
 
+VERSION=2.4.0-rc03
+DOWNLOAD_URL=https://download.starrocks.com/en-US/download/request-download/54/StarRocks-2.4.0-rc03.tar.gz
 # Install
-# wget https://download.starrocks.com/en-US/download/request-download/40/StarRocks-2.3.0-rc03.tar.gz
-tar zxvf StarRocks-2.3.0-rc03.tar.gz
-cd StarRocks-2.3.0-rc03/
+wget $DOWNLOAD_URL
+tar zxvf StarRocks-${VERSION}.tar.gz
+
+cd StarRocks-${VERSION}/
 
 # Install dependencies
 sudo yum install -y java-1.8.0-openjdk-devel.x86_64 mysql
@@ -26,30 +27,25 @@ fe/bin/start_fe.sh --daemon
 
 # Start Backend
 echo "storage_root_path = ${STARROCKS_HOME}/storage" >> be/conf/be.conf
-
-# This if you want to obtain the "tuned" result:
-echo "disable_storage_page_cache = false" >> be/conf/be.conf
-echo "storage_page_cache_limit = 4G" >> be/conf/be.conf
-echo "mem_limit=90%" >> be/conf/be.conf
-
 be/bin/start_be.sh --daemon
-sleep 20
-cd ..
+
 # Setup cluster
+# wait some seconds util fe can serve
+sleep 30
 mysql -h 127.0.0.1 -P9030 -uroot -e "ALTER SYSTEM ADD BACKEND '${IPADDR}:9050' "
-sleep 20
+
+# Prepare Data
+cd ../
+wget --continue 'https://datasets.clickhouse.com/hits_compatible/hits.tsv.gz'
+gzip -d hits.tsv.gz
+# Split file into chunks
+split -a 1 -d -l 10000000 hits.tsv hits_split
+
+# Create Table
 mysql -h 127.0.0.1 -P9030 -uroot -e "CREATE DATABASE hits"
 mysql -h 127.0.0.1 -P9030 -uroot hits < create.sql
 
-# This if you want to obtain the "tuned" result:
-mysql -h 127.0.0.1 -P9030 -uroot -e "SET GLOBAL enable_column_expr_predicate=true"
-
-# # Load data
-# wget --continue 'https://datasets.clickhouse.com/hits_compatible/hits.tsv.gz'
-# gzip -d hits.tsv.gz
-# # Split file into chunks
-# split -a 1 -d -l 10000000 hits.tsv hits_split
-
+# Load Data
 START=$(date +%s)
 for i in `seq -w 0 9`; do
     echo "start loading hits_split${i} ..."
@@ -65,13 +61,17 @@ LOADTIME=$(echo "$END - $START" | bc)
 echo "Load data costs $LOADTIME seconds"
 
 # This if you want to obtain the "tuned" result. Analyze table:
-time mysql -h 127.0.0.1 -P9030 -uroot hits -e "ANALYZE TABLE hits"
+# time mysql -h 127.0.0.1 -P9030 -uroot hits -e "ANALYZE TABLE hits with sync mode"
+# mysql -h 127.0.0.1 -P9030 -uroot hits -e "SET GLOBAL enable_tablet_internal_parallel=false"
 
-# Dataset contains 23676271984 bytes and 99997497 rows
-du -bcs StarRocks-2.3.0-rc03/storage/
+# Dataset contains about 40GB of data when the import is just completed.
+# This is because the trashed data generated during the compaction process.
+# After about tens of minutes, when the gc is completed, the system includes about 16.5GB of data.
+du -bcs StarRocks-${VERSION}/storage/
+# Dataset contains 99997497 rows
 mysql -h 127.0.0.1 -P9030 -uroot hits -e "SELECT count(*) FROM hits"
 
 # Run queries
 ./run.sh 2>&1 | tee run.log
 
-# sed -r -e 's/query[0-9]+,/[/; s/$/],/' run.log
+sed -r -e 's/query[0-9]+,/[/; s/$/],/' run.log
